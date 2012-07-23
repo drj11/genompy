@@ -346,10 +346,12 @@ class database:
         """Return a Gene object for the gene with stable id
         *stable_id*."""
 
-        # Note: scheme entirely reversely engineered.  No documentation.
+        # Note: schema entirely reversely engineered.  No documentation.
+        # Note: schema changed for ensembl release 67 or earlier
+        # (stable_id has moved into the 'gene' table).
         cursor = self.conn.cursor()
         cursor.execute(
-          '''select gene_id from gene_stable_id where stable_id =
+          '''select gene_id from gene where stable_id =
           %s;''', stable_id)
         result = list(cursor)
         cursor.close()
@@ -383,8 +385,11 @@ class database:
 
         # Slide 18 of [EBI 2006-11-13] very useful.
 
+        # As of release 67 (quite probably, way earlier)
+        # transcript_stable_id is in the transcript table.
+
         cursor = self.conn.cursor()
-        cursor.execute('''select
+        if 0: cursor.execute('''select
             transcript.transcript_id,
             transcript_stable_id.stable_id,
             exon.exon_id,
@@ -394,6 +399,20 @@ class database:
           from exon join exon_transcript join gene join transcript
             left join transcript_stable_id
             on transcript.transcript_id = transcript_stable_id.transcript_id
+          where
+            transcript.transcript_id = exon_transcript.transcript_id and
+            gene.gene_id = transcript.gene_id and
+            exon_transcript.exon_id = exon.exon_id and
+            gene.gene_id = %s
+          order by transcript_id,seq_region_start;''', geneid)
+        cursor.execute('''select
+            transcript.transcript_id,
+            transcript.stable_id,
+            exon.exon_id,
+            exon.seq_region_id,
+              exon.seq_region_start,exon.seq_region_end,
+              exon.seq_region_strand
+          from exon join exon_transcript join gene join transcript
           where
             transcript.transcript_id = exon_transcript.transcript_id and
             gene.gene_id = transcript.gene_id and

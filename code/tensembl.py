@@ -256,6 +256,8 @@ def BRCA2trans():
     print "BRCA2 Transcripts"""
 
     homo = ensembl.database('homo_sapiens_core_62_37g')
+    # Sadly, the code now doesn't work with older releases
+    homo = ensembl.Binomial('homo sapiens')
     ts = homo.fetch_gene_name('BRCA2').Transcripts()
     assert 6 == len(ts)
     return ts
