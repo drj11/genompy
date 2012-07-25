@@ -35,12 +35,12 @@ def urlREST(species, chromosome, begin, end):
     """Just the URL for *fetchREST*."""
     template = """http://www.ensembl.org/%(species)s/Export/Output/Location?db=core;output=fasta;r=%(chromosome)s:%(begin)d-%(end)d;strand=1;genomic=unmasked;_format=Text"""
 
-    species = speciesURL(species)
+    species = canonical_binomial(species)
 
     url = template % locals()
     return url
 
-def speciesURL(n):
+def canonical_binomial(n):
     """Canonicalise the binomial name n by capitalising the Genus and
     separating the two words with an underscore (for the URL).
     """
@@ -55,7 +55,7 @@ def geneREST(species, geneid):
 
     template = """http://www.ensembl.org/%(species)s/Export/Output/Gene?db=core;g=%(geneid)s;output=fasta;strand=feature;genomic=unmasked;_format=Text"""
 
-    species = speciesURL(species)
+    species = canonical_binomial(species)
     url = template % locals()
 
     return util.FASTAseq(urllib.urlopen(url))
@@ -65,7 +65,7 @@ def transcriptREST(species, transcriptid):
 
     template = """http://www.ensembl.org/%(species)s/Export/Output/Transcript?db=core;output=fasta;strand=feature;t=%(transcriptid)s;param=coding;_format=Text"""
 
-    species = speciesURL(species)
+    species = canonical_binomial(species)
     url = template % locals()
 
     return util.FASTAseq(urllib.urlopen(url))
@@ -81,13 +81,13 @@ def DrerioRange(chromoname, begin, end):
       title='D.rerio chromosome %s %d to %d from Ensembl'%(chromoname, b, e))
     assert fragrest == fragensembl
 
-def DrerioA():
-    """Test a particular segment."""
+def testDrerioA():
+    """D.rerio 25 1e6 2e6."""
 
     return DrerioRange(25, 1e6, 2e6)
 
-def DrerioRandom():
-    """Test a random segment."""
+def testDrerioRandom():
+    """D.rerio, random segment."""
 
     import math
     import random
@@ -115,7 +115,8 @@ def chloroplastFTPArabidopsis():
       "ftp://ftp.arabidopsis.org"
       "/home/tair/Sequences/whole_chromosomes/TAIR10_chrC.fas"))
 
-def Athaliana():
+def testAthaliana():
+    """A.thaliana"""
     print "A.thaliana"
     s = ensembl.Server(host='mysql.ebi.ac.uk', port=4157)
     db = s.database('Arabidopsis thaliana')
@@ -124,17 +125,17 @@ def Athaliana():
 
 # == Tests using Mus musculus
 
-def musMT():
+def testmusMT():
     """Mus mitochondrial DNA."""
 
     print "musMT"
     mus = ensembl.Binomial('mus')
     str(mus.chromosome('MT')[:])
 
-def musY():
+def testmusY():
     """Mus Y chromosome."""
 
-    print "musY"
+    print "mus Y chromosome"
     mus = ensembl.Binomial('Mus')
     str(mus.chromosome('Y')[1:2000])
     # Includes part of a gap.
@@ -142,12 +143,12 @@ def musY():
     # Overlaps two contigs.
     str(mus.chromosome('Y')[2665000:2666000])
 
-def homo20():
+def testhomo20():
     """Homo chromosome 20."""
 
     # This used to select the wrong database, so worth keeping as a
     # test:
-    print "Homo 20"
+    print "Homo chromosome 20"
     homo = ensembl.Binomial('homo')
     c20 = homo.chromosome('20')
     # See Issue 2
@@ -155,7 +156,7 @@ def homo20():
 
 # == Miscellaneous tests
 
-def musChid():
+def testmusChid():
     """(Somewhat internal test) Check chromosome coord system id."""
 
     import sys
@@ -166,9 +167,10 @@ def musChid():
     sys.stdout.write(" %d\n" % coordsys)
     assert 1 == coordsys
 
-def Hseq():
-    """(used to) provoke a pymysql bug (that was originally detected
-    by chromosome 20.
+def testHseq():
+    """Check (old) pymysql bug is not present.
+    
+    (was originally detected by chromosome 20).
     """
 
     dbid = 18559
@@ -182,16 +184,17 @@ def Hseq():
     result, = result
     assert 37972 == len(result)
 
-def revN():
-    """Includes a reversed contig that has an 'N' nucleotide.  Which
-    caused problems when we didn't complement this properly.
+def testrevN():
+    """Reversed contig with 'N' nucleotide.
+    
+    Previously caused problems when we didn't complement this properly.
     """
 
     print "revN"
 
     drerio = ensembl.Binomial('Danio').chromosome('25')[1000000:2000000]
 
-def gene99889():
+def testgene99889():
     """Gene from the Ensembl tutorial."""
 
     print "gene 99889"
@@ -203,7 +206,7 @@ def gene99889():
     restseq = geneREST('Homo sapiens', gid)
     assert dbseq == restseq
 
-def tut1():
+def testtut1():
     """Examples from the Ensembl Perl API tutorial."""
     # http://www.ensembl.org/info/docs/api/core/core_tutorial.html
     ensembl.Binomial('Homo').fetch_region('chromosome', 'X')
@@ -211,7 +214,7 @@ def tut1():
     # Not stable, doesn't work with this release.
     # ensembl.Binomial('Homo').fetch_region('supercontig', 'NT_011333')
 
-def catalogue():
+def testcatalogue():
     """Basic test of catalogue feature."""
     import sys
     sys.stdout.write("catalogue ")
@@ -225,8 +228,8 @@ def catalogue():
     q = len(g.catalogue())
     print "+", q, "species"
 
-def KRT3():
-    """A particular gene."""
+def testKRT3():
+    """Homo KRT3."""
 
     print "Homo KRT3"
 
@@ -238,8 +241,8 @@ def KRT3():
     assert dbseq == restseq
     return gene
 
-def KRT3transCCDS():
-    """One transcript of the KRT3 gene has a CCDS xref."""
+def testKRT3transCCDS():
+    """KRT3 gene has a CCDS xref in its transcripts."""
 
     gname = 'KRT3'
     tname='ENST00000417996'
@@ -250,7 +253,7 @@ def KRT3transCCDS():
     xrefs = ensembl.externals(ts)
     assert 'CCDS' in xrefs
 
-def BRCA2trans():
+def testBRCA2trans():
     """BRCA2 Transcripts."""
 
     print "BRCA2 Transcripts"""
@@ -262,8 +265,8 @@ def BRCA2trans():
     assert 6 == len(ts)
     return ts
 
-def BRCA2_380152():
-    """One particular BRCA2 transcript."""
+def testBRCA2_380152():
+    """BRCA2 transcript 380152."""
 
     tname = 'ENST00000380152'
     print "BRCA2", tname
@@ -274,9 +277,10 @@ def BRCA2_380152():
     restseq = transcriptREST('Homo sapiens', tname)
     assert dbseq == restseq
 
-def LRRN2_367175():
-    """One particular LRRN2 transcript.  Of note because it starts and
-    ends in the same exon."""
+def testLRRN2_367175():
+    """LRRN2 transcript 367175.
+    
+    Of note because it starts and ends in the same exon."""
 
     tname = 'ENST00000367175'
     print "LRRN2", tname
@@ -289,23 +293,23 @@ def LRRN2_367175():
 
 
 def main():
-    KRT3()
-    KRT3transCCDS()
-    DrerioRandom()
-    LRRN2_367175()
-    catalogue()
-    Hseq()
-    gene99889()
-    musChid()
-    musMT()
-    musY()
-    homo20()
-    revN()
-    BRCA2trans()
-    BRCA2_380152()
-    DrerioA()
-    Athaliana()
-    tut1()
+    testKRT3()
+    testKRT3transCCDS()
+    testDrerioRandom()
+    testLRRN2_367175()
+    testcatalogue()
+    testHseq()
+    testgene99889()
+    testmusChid()
+    testmusMT()
+    testmusY()
+    testhomo20()
+    testrevN()
+    testBRCA2trans()
+    testBRCA2_380152()
+    testDrerioA()
+    testAthaliana()
+    testtut1()
 
 if __name__ == '__main__':
     main()
