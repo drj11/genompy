@@ -16,6 +16,18 @@ import urllib
 import ensembl
 import util
 
+# == Python Tests ==
+
+"""Tests in this section are about the representation and
+implementation in Python, rather than anything to do with
+particular organisms or genes.
+"""
+
+def testServerRepr():
+    """Server instance has a sensible repr."""
+    assert 'ensembl.org' in repr(ensembl.Server())
+
+
 # == Tests using Danio rerio
 
 # Note that ensembl has a sort of REST interface:

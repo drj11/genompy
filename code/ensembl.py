@@ -111,6 +111,9 @@ class Server:
             self.host = keys['host']
         if 'port' in keys:
             self.port = keys['port']
+    def __repr__(self):
+        return "ensembl.Server(host=%r, port=%r)" % (self.host,
+          self.port)
 
     def catalogue(self, versions=False):
         """Retrieve a list of species stored on the server.  If
