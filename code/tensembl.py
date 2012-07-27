@@ -240,12 +240,21 @@ def testLRRN2_367175():
     restseq = transcriptREST('Homo sapiens', tname)
     assert dbseq == restseq
 
-def testSNRPN():
-    """SNRPN."""
+def testGeneNames():
+    """SNRPN APOE UBE3A IGF2R BMP4"""
+    # A random selection from the book "Genome".
+
+    import sys
+
+    gs = testGeneNames.__doc__
 
     homo = ensembl.Binomial('Homo')
-    g = homo.fetch_gene_name('SNRPN')
-    assert g
+    for name in gs.split():
+        sys.stdout.write(name + ' ')
+        sys.stdout.flush()
+        g = homo.fetch_gene_name(name)
+        assert g
+    sys.stdout.write('\n')
 
 # == Miscellaneous tests
 
@@ -323,7 +332,7 @@ def testcatalogue():
 
 
 def main():
-    testSNRPN()
+    testGeneNames()
     teststr()
     testKRT3()
     testKRT3transCCDS()

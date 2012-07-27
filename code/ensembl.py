@@ -481,7 +481,8 @@ class database:
         cursor.execute(
           '''select g.gene_id from gene g join xref x on
             g.display_xref_id = x.xref_id
-          where x.display_label = %s;''', name)
+          where g.biotype != 'LRG_gene' and
+            x.display_label = %s;''', name)
         result = list(cursor)
         cursor.close()
         # :detuple:magic
