@@ -155,6 +155,8 @@ def testmusY():
     # Overlaps two contigs.
     str(mus.chromosome('Y')[2665000:2666000])
 
+# == Tests using Homo sapiens
+
 def testhomo20():
     """Homo chromosome 20."""
 
@@ -165,6 +167,76 @@ def testhomo20():
     c20 = homo.chromosome('20')
     # See Issue 2
     str(c20[1596200:1596400])
+
+def testKRT3():
+    """Homo KRT3."""
+
+    print "Homo KRT3"
+
+    homo = ensembl.Binomial('Homo')
+    gname = 'KRT3'
+    gene = homo.fetch_gene_name(gname)
+    dbseq = str(gene[:])
+    restseq = geneREST('Homo sapiens', gname)
+    assert dbseq == restseq
+    return gene
+
+def testKRT3transCCDS():
+    """KRT3 gene has a CCDS xref in its transcripts."""
+
+    gname = 'KRT3'
+    tname='ENST00000417996'
+    print "Homo %s %s" % (gname, tname)
+    homo = ensembl.Binomial('homo sapiens')
+    gene = homo.fetch_gene_name(gname)
+    ts = gene.Transcripts()[tname]
+    xrefs = ensembl.externals(ts)
+    assert 'CCDS' in xrefs
+
+def testBRCA2trans():
+    """BRCA2 Transcripts."""
+
+    print "BRCA2 Transcripts"""
+
+    homo = ensembl.database('homo_sapiens_core_62_37g')
+    # Sadly, the code now doesn't work with older releases
+    homo = ensembl.Binomial('homo sapiens')
+    ts = homo.fetch_gene_name('BRCA2').Transcripts()
+    assert 6 == len(ts)
+    return ts
+
+def testBRCA2_380152():
+    """BRCA2 transcript 380152."""
+
+    tname = 'ENST00000380152'
+    print "BRCA2", tname
+
+    homo = ensembl.Binomial('Homo')
+    ts = homo.fetch_gene_name('BRCA2').Transcripts()
+    dbseq = ts[tname].translated_seq()
+    restseq = transcriptREST('Homo sapiens', tname)
+    assert dbseq == restseq
+
+def testLRRN2_367175():
+    """LRRN2 transcript 367175.
+    
+    Of note because it starts and ends in the same exon."""
+
+    tname = 'ENST00000367175'
+    print "LRRN2", tname
+
+    homo = ensembl.Binomial('Homo')
+    ts = homo.fetch_gene_name('LRRN2').Transcripts()
+    dbseq = ts[tname].translated_seq()
+    restseq = transcriptREST('Homo sapiens', tname)
+    assert dbseq == restseq
+
+def testGenes():
+    """Test Genes method, using SNRPN gene."""
+
+    homo = ensembl.Binomial('Homo')
+    l = list(homo.Genes(name='SNRPN'))
+    assert len(l) > 1
 
 # == Miscellaneous tests
 
@@ -239,69 +311,6 @@ def testcatalogue():
     g = ensembl.Server(host='mysql.ebi.ac.uk', port=4157)
     q = len(g.catalogue())
     print "+", q, "species"
-
-def testKRT3():
-    """Homo KRT3."""
-
-    print "Homo KRT3"
-
-    homo = ensembl.Binomial('Homo')
-    gname = 'KRT3'
-    gene = homo.fetch_gene_name(gname)
-    dbseq = str(gene[:])
-    restseq = geneREST('Homo sapiens', gname)
-    assert dbseq == restseq
-    return gene
-
-def testKRT3transCCDS():
-    """KRT3 gene has a CCDS xref in its transcripts."""
-
-    gname = 'KRT3'
-    tname='ENST00000417996'
-    print "Homo %s %s" % (gname, tname)
-    homo = ensembl.Binomial('homo sapiens')
-    gene = homo.fetch_gene_name(gname)
-    ts = gene.Transcripts()[tname]
-    xrefs = ensembl.externals(ts)
-    assert 'CCDS' in xrefs
-
-def testBRCA2trans():
-    """BRCA2 Transcripts."""
-
-    print "BRCA2 Transcripts"""
-
-    homo = ensembl.database('homo_sapiens_core_62_37g')
-    # Sadly, the code now doesn't work with older releases
-    homo = ensembl.Binomial('homo sapiens')
-    ts = homo.fetch_gene_name('BRCA2').Transcripts()
-    assert 6 == len(ts)
-    return ts
-
-def testBRCA2_380152():
-    """BRCA2 transcript 380152."""
-
-    tname = 'ENST00000380152'
-    print "BRCA2", tname
-
-    homo = ensembl.Binomial('Homo')
-    ts = homo.fetch_gene_name('BRCA2').Transcripts()
-    dbseq = ts[tname].translated_seq()
-    restseq = transcriptREST('Homo sapiens', tname)
-    assert dbseq == restseq
-
-def testLRRN2_367175():
-    """LRRN2 transcript 367175.
-    
-    Of note because it starts and ends in the same exon."""
-
-    tname = 'ENST00000367175'
-    print "LRRN2", tname
-
-    homo = ensembl.Binomial('Homo')
-    ts = homo.fetch_gene_name('LRRN2').Transcripts()
-    dbseq = ts[tname].translated_seq()
-    restseq = transcriptREST('Homo sapiens', tname)
-    assert dbseq == restseq
 
 
 def main():

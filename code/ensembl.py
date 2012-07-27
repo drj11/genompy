@@ -98,6 +98,9 @@ class IntegrityError(Error):
     """An error in the expected format / content of database tables or
     similar."""
 
+class CallingError(Error):
+    """Some problem with the way a function was called."""
+
 class Server:
     """Models an internet server using the ensembl protocol.  The
     archetypal server is the one at enembldb.ensembl.org:5306.
@@ -379,6 +382,20 @@ class database:
             raise Error("Too many (%d) genes named %r." % (len(ids), name))
         geneid, = ids
         return Gene(self, geneid)
+
+    def Genes(self, **k):
+        """Return a sequence of Gene objects.
+        Genes(name='foo') will find all genes named 'foo'.
+
+        In future, searches by other keywords may be possible.
+        """
+
+        if 'name' not in k:
+            raise CallingError("'name' is a required keyword argument")
+        name = k['name']
+
+        ids = self.gene_id_from_name(name)
+        return (Gene(self, geneid) for geneid in ids)
 
     def fetch_transcripts_gene_id(self, geneid):
         """Return transcripts as a dictionary keyed by ensembl
