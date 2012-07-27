@@ -240,12 +240,12 @@ def testLRRN2_367175():
     restseq = transcriptREST('Homo sapiens', tname)
     assert dbseq == restseq
 
-def testGenes():
-    """Test Genes method, using SNRPN gene."""
+def testSNRPN():
+    """SNRPN."""
 
     homo = ensembl.Binomial('Homo')
-    l = list(homo.Genes(name='SNRPN'))
-    assert len(l) > 1
+    g = homo.fetch_gene_name('SNRPN')
+    assert g
 
 # == Miscellaneous tests
 
@@ -323,6 +323,7 @@ def testcatalogue():
 
 
 def main():
+    testSNRPN()
     teststr()
     testKRT3()
     testKRT3transCCDS()
