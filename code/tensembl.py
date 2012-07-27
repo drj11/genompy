@@ -181,6 +181,15 @@ def testKRT3():
     assert dbseq == restseq
     return gene
 
+def teststr():
+    """str of a gene has reasonable results."""
+
+    homo = ensembl.Binomial('Homo')
+    gname = 'KRT3'
+    gene = homo.fetch_gene_name(gname)
+    # Happens to be on chromosome 12
+    assert '12:' in str(gene)
+
 def testKRT3transCCDS():
     """KRT3 gene has a CCDS xref in its transcripts."""
 
@@ -314,6 +323,7 @@ def testcatalogue():
 
 
 def main():
+    teststr()
     testKRT3()
     testKRT3transCCDS()
     testDrerioRandom()

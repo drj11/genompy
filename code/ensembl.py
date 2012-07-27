@@ -581,6 +581,20 @@ class SequenceById:
         return 'SequenceById(%s, %d, forward=%r)' % (
           self.database, self.seq_region_id, self.forward)
 
+    def name(self):
+        """Return the name of a sequence.  For example, if this
+        is a chromosome, the name will be something like '15'
+        or 'MT'.
+        """
+        cursor = self.database.conn.cursor()
+        cursor.execute('''select
+          name from seq_region where seq_region_id = %s''',
+            self.seq_region_id)
+        row, = tuple(cursor)
+        cursor.close()
+        name, = row
+        return name
+
     def reversedComplement(self):
         """Return a Sequence that complements this one.  The sequences
         share the same coordinate system.  If *s* is this sequence and
@@ -761,6 +775,10 @@ class SubSequence(object):
         if ori not in (-1, 1):
             raise Error('ori must be 1 or -1.')
         self.ori = ori
+
+    def __str__(self):
+        return "%s:%d:%d:%d" % (self.sequence.name(),
+          self.start, self.end, self.ori)
 
     def __getitem__(self, key):
         if type(key) == slice:
