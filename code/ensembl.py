@@ -481,20 +481,21 @@ class database:
         for genes matching *name*.
         
         For those interested in the schema technicalities:
-        the *xref.display_label* and *external_synonym.synonym*
-        columns are searched.  Actually the synonym column isn't
-        searched yet.
+        Tables 'gene' and 'xref' are joined (using display_xref_id)
+        and *name* is matched in *display_label*.
         """
+
+        # Much clarity after browsing
+        # http://www.ensembl.org/info/docs/api/core/core_schema.html#gene
 
         # Similar queries can be made for "transcript" and
         # "translation"; the Ensembl perl code exploits this.
 
         cursor = self.conn.cursor()
         cursor.execute(
-          '''select o.ensembl_id from gene g join object_xref o on
-          o.ensembl_id = g.gene_id join xref x on o.xref_id = x.xref_id where
-          x.display_label = %s and o.ensembl_object_type = 'Gene' and
-          g.is_current = 1;''', name)
+          '''select g.gene_id from gene g join xref x on
+            g.display_xref_id = x.xref_id
+          where x.display_label = %s;''', name)
         result = list(cursor)
         cursor.close()
         # :detuple:magic
