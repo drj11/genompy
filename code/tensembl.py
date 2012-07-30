@@ -241,7 +241,7 @@ def testLRRN2_367175():
     assert dbseq == restseq
 
 def testGeneNames():
-    """SNRPN APOE UBE3A IGF2R BMP4"""
+    """SNRPN APOE UBE3A IGF2R BMP4 CREBBP"""
     # A random selection from the book "Genome".
 
     import sys
