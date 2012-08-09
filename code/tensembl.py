@@ -240,21 +240,39 @@ def testLRRN2_367175():
     restseq = transcriptREST('Homo sapiens', tname)
     assert dbseq == restseq
 
-def testGeneNames():
-    """SNRPN APOE UBE3A IGF2R BMP4 CREBBP"""
-    # A random selection from the book "Genome".
+def OrganismGeneNames(org, genes):
 
     import sys
 
-    gs = testGeneNames.__doc__
-
-    homo = ensembl.Binomial('Homo')
-    for name in gs.split():
-        sys.stdout.write(name + ' ')
+    db = ensembl.Binomial(org)
+    for i,name in enumerate(genes.split()):
+        if i:
+            sys.stdout.write(' ')
+        sys.stdout.write(name)
         sys.stdout.flush()
-        g = homo.fetch_gene_name(name)
+        g = db.fetch_gene_name(name)
         assert g
     sys.stdout.write('\n')
+    
+
+def testHomoGeneNames():
+    # A random selection from the book "Genome", and other books.
+    """SNRPN APOE UBE3A IGF2R BMP4 CREBBP
+    TP53 MYC BCL2 APOE FOXP2 PRNP
+    """
+
+    OrganismGeneNames('Homo', testHomoGeneNames.__doc__)
+
+def testMusGeneNames():
+    """INTS2"""
+
+    OrganismGeneNames('Mus', testMusGeneNames.__doc__)
+
+def testDanioGeneNames():
+    """Pitx1"""
+
+    OrganismGeneNames('Danio', testDanioGeneNames.__doc__)
+
 
 # == Miscellaneous tests
 
